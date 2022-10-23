@@ -28,29 +28,58 @@
     ],
   };
 
-  const tooltip_footer = (tooltipItems) => {
-    let i = tooltipItems[0].dataIndex;
+  function get_diff(i, field, revert = false) {
     let string = "";
-    string += "Commit: " + dev_data[i].commit.substring(0, 7);
-    if (i > 0) {
-      let diff =
-        chart_data.datasets[0].data[i] - chart_data.datasets[0].data[i - 1];
-      string += " | Diff: ";
-      if (diff > 0) {
-        string += "+";
-      }
-      string += diff + "\r\n";
+    let diff = 0;
+
+    if (revert) {
+      diff = dev_data[i - 1][field] - dev_data[i][field];
     } else {
-      string += "\r\n";
+      diff = dev_data[i][field] - dev_data[i - 1][field];
     }
-    string += "\r\n";
-    string += dev_data[i].commit_msg;
+
+    if (diff > 0) {
+      string += "+";
+    }
+    string += diff;
+
+    return string;
+  }
+
+  const commit_info = (i) => {
+    let string = "";
+
+    if (i > 0) {
+      string += "used: " + get_diff(i, "free_flash_size", true) + "\r\n";
+      string += ".bss: " + get_diff(i, "bss_size") + "\r\n";
+      string += ".data: " + get_diff(i, "data_size") + "\r\n";
+      string += ".rodata: " + get_diff(i, "rodata_size") + "\r\n";
+      string += ".text: " + get_diff(i, "text_size") + "\r\n";
+    }
+
+    string += "-------------------------------------" + "\r\n";
+    string += "Commit: " + dev_data[i].commit.substring(0, 7) + "\r\n";
+    string += "-------------------------------------" + "\r\n";
+    let message = dev_data[i].commit_msg;
+    message = message.replace(/^\'+/, "").replace(/\'+$/, "");
+    string += message;
+    return string;
+  };
+
+  const tooltip_footer = (item) => {
+    let i = item[0].dataIndex;
+    let string = commit_info(i);
     return string;
   };
 
   const chart_options = {
-    legend: {
-      display: false,
+    scales: {
+      x: {
+        display: false,
+      },
+      y: {
+        display: true,
+      },
     },
     responsive: true,
     plugins: {
@@ -59,6 +88,21 @@
           footer: tooltip_footer,
         },
       },
+    },
+    elements: {
+      point: {
+        // radius: 5,
+        hoverRadius: 15,
+      },
+    },
+    onClick: (event, item) => {
+      let i = item[0].index;
+      if (i > 0) {
+        let id_current = dev_data[i].id;
+        let id_previous = dev_data[i - 1].id;
+        console.log(id_current, id_previous);
+      }
+      console.log(commit_info(i));
     },
   };
 
