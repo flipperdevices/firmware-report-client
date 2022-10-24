@@ -14,9 +14,7 @@
     "vite": "^3.1.0"
   },
   "dependencies": {
-    "@sveltejs/pancake": "^0.0.18",
     "chart.js": "^3.9.1",
-    "d3": "^7.6.1",
     "svelte-chartjs": "^3.0.1"
   }
 }
