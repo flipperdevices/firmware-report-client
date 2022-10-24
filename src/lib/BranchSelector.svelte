@@ -3,9 +3,14 @@
     import api_get from "./api.js";
 
     const dispatch = createEventDispatcher();
+    export let branch_name;
+
+    if (branch_name == "") {
+        branch_name = "dev";
+    }
 
     let selected = {
-        type: "dev",
+        type: branch_name,
         release: "",
         release_candidate: "",
         misc: "",
@@ -51,7 +56,7 @@
                 dev:{data.main_branches[0].count}
             </label>
         </div>
-        <div>
+        <div class="hidden">
             <label>
                 <input
                     type="radio"
@@ -75,7 +80,7 @@
                 </select>
             </label>
         </div>
-        <div>
+        <div class="hidden">
             <label>
                 <input
                     type="radio"
@@ -99,7 +104,7 @@
                 </select>
             </label>
         </div>
-        <div>
+        <div class="hidden">
             <label>
                 <input
                     type="radio"
@@ -181,5 +186,9 @@
 
     form div {
         display: inline-block;
+    }
+
+    .hidden {
+        display: none;
     }
 </style>
