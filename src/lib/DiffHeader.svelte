@@ -13,8 +13,8 @@
 
 <div>
     <div>
-        Diff between {data.commit_1.substring(0, 7)}
-        and {data.commit_2.substring(0, 7)}
+        Diff between {data.commit_1}
+        and {data.commit_2}
     </div>
     <div class="diff_message {expanded ? 'clickable-like' : ''}">
         <div
