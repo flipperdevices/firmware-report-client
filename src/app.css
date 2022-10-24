@@ -98,3 +98,7 @@ button:focus-visible {
   cursor: pointer;
   border-bottom: 1px solid #ffffff30;
 }
+
+.clickable-like {
+  border-bottom: 1px solid #ffffff30;
+}

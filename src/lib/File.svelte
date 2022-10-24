@@ -1,5 +1,6 @@
 <script>
     import FileSection from "./FileSection.svelte";
+    import Icon from "./Icon.svelte";
 
     export let filename;
     export let file_data;
@@ -16,6 +17,11 @@
 
 <div>
     <span on:click={toggle} on:keypress={toggle} class="clickable">
+        {#if !is_empty(file_data.next)}
+            <Icon icon="folder" color="#b9b9b9" />
+        {:else}
+            <Icon icon="file-text" color="#b9b9b9" />
+        {/if}
         {filename}
     </span>
     <span>

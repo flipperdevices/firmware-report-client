@@ -1,4 +1,6 @@
 <script>
+    import Icon from "./Icon.svelte";
+
     export let name;
     export let data;
 
@@ -8,8 +10,14 @@
     }
 </script>
 
-<div>
-    <span on:click={toggle} on:keypress={toggle} class="clickable">{name}</span>
+<div><span on:click={toggle} on:keypress={toggle} class="clickable">
+    {#if data.size > 0}
+        <Icon icon="file-plus" color="#b9b9b9" />
+    {:else}
+        <Icon icon="file-minus" color="#b9b9b9" />
+    {/if}
+
+    {name}</span>
     {#if data.size > 0}
         <span class="plus">{name} : +{data.size}</span>
     {:else}

@@ -16,17 +16,30 @@
         Diff between {data.commit_1.substring(0, 7)}
         and {data.commit_2.substring(0, 7)}
     </div>
-    <div class="diff_message" on:click={toggle} on:keypress={toggle}>
-        <span class="clickable">{data.message.split("\n")[0]}</span>
+    <div class="diff_message {expanded ? 'clickable-like' : ''}">
+        <div
+            class="clickable diff_header"
+            on:click={toggle}
+            on:keypress={toggle}
+        >
+            <span>
+                {data.message.split("\n")[0]}
+            </span>
+        </div>
         {#if expanded}
             {#each data.message.split("\n").slice(1) as line}
                 {line}<br />
             {/each}
+            <br />
         {/if}
     </div>
 </div>
 
 <style>
+    .diff_header {
+        text-align: center;
+    }
+
     .diff_message {
         text-align: left;
         display: inline-block;

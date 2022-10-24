@@ -93,6 +93,7 @@
         return string;
     };
 
+    let chart;
     const chart_options = {
         scales: {
             x: {
@@ -130,6 +131,20 @@
                     diff_header_data.commit_2 = dev_data[i - 1].commit;
                     diff_header_data.message = get_commit_message(i);
                     fetch_diff_data(id_current, id_previous);
+
+                    let dataset = chart_data.datasets[0];
+                    let j;
+                    for (j = 0; j < dataset.pointBackgroundColor.length; j++) {
+                        dataset.pointBackgroundColor[j] =
+                            "rgba(255, 99, 132, 0.2)";
+                        dataset.pointRadius[j] = 3;
+                    }
+
+                    dataset.pointBackgroundColor[i - 1] =
+                        "rgba(255, 99, 132, 0.8)";
+                    dataset.pointBackgroundColor[i] = "rgba(255, 99, 132, 0.8)";
+                    dataset.pointRadius[i] = 6;
+                    chart.update();
                 }
                 console.log(commit_info(i));
             }
@@ -141,13 +156,20 @@
 
         let labels = [];
         let data = [];
+        let colors = [];
+        let radius = [];
+
         for (let i = 0; i < dev_data.length; i++) {
             labels.push(dev_data[i].datetime);
             data.push(total_flash_size - dev_data[i].free_flash_size);
+            colors.push("rgba(255, 99, 132, 0.2)");
+            radius.push(3);
         }
 
         chart_data.labels = labels;
         chart_data.datasets[0].data = data;
+        chart_data.datasets[0].pointBackgroundColor = colors;
+        chart_data.datasets[0].pointRadius = radius;
         return dev_data;
     }
 
@@ -156,16 +178,19 @@
         branch_name = event.detail.branch_name;
         fetch_dev_data(branch_name);
     }
+
     fetch_dev_data(branch_name);
 </script>
 
 <main>
     <BranchSelector on:new_branch={new_branch_selected} />
     <h1>{branch_name}</h1>
-    <Line data={chart_data} options={chart_options} />
+    <Line data={chart_data} options={chart_options} bind:chart />
     {#if show_diff}
         <DiffHeader data={diff_header_data} />
+        <div>-=-=- Files -=-=-</div>
         <Files files={diff_data.files} />
+        <div>-=-=- Sections -=-=-</div>
         <Sections sections={diff_data.sections} />
     {/if}
 </main>
