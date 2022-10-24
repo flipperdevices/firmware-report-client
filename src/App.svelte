@@ -9,7 +9,25 @@
 
     const total_flash_size = 1024 * 1024;
 
-    let dev_data;
+    let branch_data;
+    let chart;
+    let show_diff = false;
+    let diff_data = { files: {}, sections: {} };
+    let diff_header_data = {
+        commit_1: "",
+        commit_2: "",
+        message: "",
+        size: 0,
+    };
+
+    let branch_name = "";
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.has("branch")) {
+        branch_name = urlParams.get("branch");
+    } else {
+        branch_name = "dev";
+    }
+
     const chart_data = {
         labels: [],
         datasets: [
@@ -28,9 +46,9 @@
         let diff = 0;
 
         if (revert) {
-            diff = dev_data[i - 1][field] - dev_data[i][field];
+            diff = branch_data[i - 1][field] - branch_data[i][field];
         } else {
-            diff = dev_data[i][field] - dev_data[i - 1][field];
+            diff = branch_data[i][field] - branch_data[i - 1][field];
         }
 
         if (diff > 0) {
@@ -42,13 +60,21 @@
     }
 
     function get_commit_message(i) {
-        let message = dev_data[i].commit_msg;
+        let message = branch_data[i].commit_msg;
         message = message.replace(/^\'+/, "").replace(/\'+$/, "");
         message = message.replaceAll("'\"'\"'", '"');
         return message;
     }
 
-    const commit_info = (i) => {
+    function get_commit_id(i) {
+        return (
+            branch_data[i].branch_name +
+            ":" +
+            branch_data[i].commit.substring(0, 7)
+        );
+    }
+
+    const get_commit_info = (i) => {
         let string = "";
 
         if (i > 0) {
@@ -60,40 +86,48 @@
         }
 
         string += "-------------------------------------" + "\r\n";
-        string += "Commit: " + dev_data[i].commit.substring(0, 7) + "\r\n";
+        string += "Commit: " + get_commit_id(i) + "\r\n";
         string += "-------------------------------------" + "\r\n";
-        string += get_commit_message(i);
+
+        let message = get_commit_message(i);
+        message = message.trim().split("\n")[0];
+        string += message;
+
         return string;
     };
-
-    let show_diff = false;
-    let diff_data = { files: {}, sections: {} };
-    let diff_header_data = {
-        commit_1: "",
-        commit_2: "",
-        message: "",
-    };
-
-    async function fetch_diff_data(branch_id_1, branch_id_2) {
-        show_diff = true;
-        diff_data = await api_get(
-            "api/v0/commit_diff_data?branch_ids=" +
-                branch_id_1 +
-                "," +
-                branch_id_2
-        );
-
-        console.log(diff_data);
-        return diff_data;
-    }
 
     const tooltip_footer = (item) => {
         let i = item[0].dataIndex;
-        let string = commit_info(i);
+        let string = get_commit_info(i);
         return string;
     };
 
-    let chart;
+    const chart_on_click = (event, item) => {
+        if (item.length > 0) {
+            let i = item[0].index;
+            if (i > 0) {
+                let id_current = branch_data[i].id;
+                let id_previous = branch_data[i - 1].id;
+                console.log(id_current, id_previous);
+
+                diff_header_data.commit_1 = get_commit_id(i);
+                diff_header_data.commit_2 = get_commit_id(i - 1);
+                diff_header_data.message = get_commit_message(i);
+                diff_header_data.size =
+                    branch_data[i - 1].free_flash_size -
+                    branch_data[i].free_flash_size;
+
+                fetch_diff_data(id_current, id_previous);
+
+                chart_clear_style();
+                chart_mark_main_point(i);
+                chart_mark_secondary_point(i - 1);
+
+                chart.update();
+            }
+        }
+    };
+
     const chart_options = {
         scales: {
             x: {
@@ -119,72 +153,72 @@
         animation: {
             duration: 500,
         },
-        onClick: (event, item) => {
-            if (item.length > 0) {
-                let i = item[0].index;
-                if (i > 0) {
-                    let id_current = dev_data[i].id;
-                    let id_previous = dev_data[i - 1].id;
-                    console.log(id_current, id_previous);
-
-                    diff_header_data.commit_1 = dev_data[i].commit;
-                    diff_header_data.commit_2 = dev_data[i - 1].commit;
-                    diff_header_data.message = get_commit_message(i);
-                    fetch_diff_data(id_current, id_previous);
-
-                    let dataset = chart_data.datasets[0];
-                    let j;
-                    for (j = 0; j < dataset.pointBackgroundColor.length; j++) {
-                        dataset.pointBackgroundColor[j] =
-                            "rgba(255, 99, 132, 0.2)";
-                        dataset.pointRadius[j] = 3;
-                    }
-
-                    dataset.pointBackgroundColor[i - 1] =
-                        "rgba(255, 99, 132, 0.8)";
-                    dataset.pointBackgroundColor[i] = "rgba(255, 99, 132, 0.8)";
-                    dataset.pointRadius[i] = 6;
-                    chart.update();
-                }
-                console.log(commit_info(i));
-            }
-        },
+        onClick: chart_on_click,
     };
 
-    async function fetch_dev_data(branch_name) {
-        dev_data = await api_get("api/v0/branch?branch_name=" + branch_name);
+    async function fetch_diff_data(branch_id_1, branch_id_2) {
+        show_diff = true;
+        diff_data = await api_get(
+            "api/v0/commit_diff_data?branch_ids=" +
+                branch_id_1 +
+                "," +
+                branch_id_2
+        );
+
+        console.log(diff_data);
+        return diff_data;
+    }
+
+    function chart_clear_style() {
+        let dataset = chart_data.datasets[0];
+        let data_length = dataset.data.length;
+        dataset.pointBackgroundColor = Array(data_length).fill("#ff638433");
+        dataset.pointRadius = Array(data_length).fill(3);
+    }
+
+    function chart_mark_main_point(i) {
+        let dataset = chart_data.datasets[0];
+        dataset.pointBackgroundColor[i] = "#ff6384cc";
+        dataset.pointRadius[i] = 6;
+    }
+
+    function chart_mark_secondary_point(i) {
+        let dataset = chart_data.datasets[0];
+        dataset.pointBackgroundColor[i] = "#ff6384cc";
+    }
+
+    async function fetch_branch_data() {
+        branch_data = await api_get("api/v0/branch?branch_name=" + branch_name);
 
         let labels = [];
         let data = [];
-        let colors = [];
-        let radius = [];
 
-        for (let i = 0; i < dev_data.length; i++) {
-            labels.push(dev_data[i].datetime);
-            data.push(total_flash_size - dev_data[i].free_flash_size);
-            colors.push("rgba(255, 99, 132, 0.2)");
-            radius.push(3);
+        for (let i = 0; i < branch_data.length; i++) {
+            labels.push(branch_data[i].datetime);
+            data.push(total_flash_size - branch_data[i].free_flash_size);
         }
 
         chart_data.labels = labels;
         chart_data.datasets[0].data = data;
-        chart_data.datasets[0].pointBackgroundColor = colors;
-        chart_data.datasets[0].pointRadius = radius;
-        return dev_data;
+        chart_clear_style();
+        return branch_data;
     }
 
-    let branch_name = "dev";
     function new_branch_selected(event) {
         branch_name = event.detail.branch_name;
-        fetch_dev_data(branch_name);
+        fetch_branch_data();
     }
 
-    fetch_dev_data(branch_name);
+    fetch_branch_data();
 </script>
 
 <main>
-    <BranchSelector on:new_branch={new_branch_selected} />
-    <h1>{branch_name}</h1>
+    <BranchSelector on:new_branch={new_branch_selected} branch_name />
+    <h2>
+        {branch_name === "dev"
+            ? "dev branch"
+            : '"dev" vs "' + branch_name + '"'}
+    </h2>
     <Line data={chart_data} options={chart_options} bind:chart />
     {#if show_diff}
         <DiffHeader data={diff_header_data} />
