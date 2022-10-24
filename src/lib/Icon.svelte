@@ -5,7 +5,7 @@
 
 <span
     class="icon"
-    style="background-color: {color}; -webkit-mask-image: url('/assets/icons/{icon}.svg'); mask-image: url('/assets/icons/{icon}.svg');"
+    style="background-color: {color}; -webkit-mask-image: url('/icons/{icon}.svg'); mask-image: url('/icons/{icon}.svg');"
 />
 
 <style>
