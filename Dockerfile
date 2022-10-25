@@ -4,11 +4,9 @@ COPY app /app
 
 WORKDIR /app
 
-RUN npm install 
-
-RUN npm run build
-
-RUN npx pkg ./node_modules/@import-meta-env/cli/bin/import-meta-env.js -t node16-alpine -o import-meta-env
+RUN npm install &&\
+  npm run build && \
+  npx pkg ./node_modules/@import-meta-env/cli/bin/import-meta-env.js -t node16-alpine -o import-meta-env
 
 FROM nginx:stable-alpine as production
 
