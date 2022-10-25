@@ -128,7 +128,6 @@
             if (i > 0) {
                 let id_current = branch_data[i].id;
                 let id_previous = branch_data[i - 1].id;
-                console.log(id_current, id_previous);
 
                 diff_header_data.commit_1 = get_commit_id(i);
                 diff_header_data.commit_2 = get_commit_id(i - 1);
@@ -185,7 +184,6 @@
                 branch_id_2
         );
 
-        console.log(diff_data);
         return diff_data;
     }
 
