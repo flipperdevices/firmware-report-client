@@ -1,6 +1,6 @@
 # About
 
-Flipper Zero FW report analyzer frontend
+Flipper Zero FW build report analyzer frontend
 
 # Requirements
 
