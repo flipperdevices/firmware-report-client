@@ -22,8 +22,8 @@ clean:
 
 .PHONY: docker
 docker:
-	docker build . --tag "firmware_report_client:latest"
+	docker build . --tag "firmware-report-client:latest"
 
 .PHONY: docker_nginx
 docker_nginx: docker
-	docker run -it -p 80:80 --rm "firmware_report_client:latest" 
+	docker run -it -p 80:80 --rm "firmware-report-client:latest" 
