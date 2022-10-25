@@ -26,4 +26,4 @@ docker:
 
 .PHONY: docker_nginx
 docker_nginx: docker
-	docker run -it -p 80:80 --rm "firmware-report-client:latest" 
+	docker run -it -p 5173:80 --rm "firmware-report-client:latest" 

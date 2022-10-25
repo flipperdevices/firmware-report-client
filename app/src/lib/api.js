@@ -1,7 +1,7 @@
-let server = "http://127.0.0.1:5000/";
+const server_url = import.meta.env.FW_BACKEND_URL;
 
 export default async function api_get(api) {
-    const res = await fetch(server + api, {
+    const res = await fetch("http://" + server_url + "/" + api, {
         method: "GET",
     });
 
