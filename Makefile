@@ -9,11 +9,11 @@ run: install
 	npm run dev --prefix ./app
 
 .PHONY: build
-build:
+build: install
 	npm run build --prefix ./app
 
 .PHONY: preview
-preview:
+preview: install
 	npm run preview --prefix ./app
 
 .PHONY: clean
