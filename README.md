@@ -8,7 +8,8 @@ Docker or node.js
 
 # Development
 
-You need to set the FW_BACKEND_URL env variable to point to the backend server (eg FW_BACKEND_URL=127.0.0.1:5000).
+You need to set the FW_BACKEND_URL env variable to point to the backend server, eg
+`FW_BACKEND_URL=127.0.0.1:6754`
 
 - `make install` - to install node.js modules
 - `make run` - to start node.js development server
