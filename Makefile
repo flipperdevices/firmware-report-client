@@ -1,12 +1,12 @@
 # Short cuts for common operations
 
-.PHONY: run
-run:
-	npm run dev --prefix ./app
-
 .PHONY: install
 install:
 	npm install --prefix ./app
+
+.PHONY: run
+run: install
+	npm run dev --prefix ./app
 
 .PHONY: build
 build:
@@ -26,4 +26,4 @@ docker:
 
 .PHONY: docker_nginx
 docker_nginx: docker
-	docker run -it -p 5173:80 --rm "firmware-report-client:latest" 
+	docker run -it -p 5173:80 --rm -e FW_BACKEND_URL=${FW_BACKEND_URL} "firmware-report-client:latest" 
