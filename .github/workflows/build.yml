@@ -23,12 +23,13 @@ jobs:
 
       - name: 'Set image tag'
         run: |
-          export IMAGE_TAG=latest
+          IMAGE_TAG=latest
           if [[ "${{ github.ref }}" == "refs/tags/"* ]]; then
             REF=${{ github.ref }};
             TAG_FULL=${REF#refs/*/};
-            export IMAGE_TAG=${TAG_FULL//\//_};
+            IMAGE_TAG=${TAG_FULL//\//_};
           fi
+          echo "IMAGE_TAG=${IMAGE_TAG}" >> $GITHUB_ENV
 
       - name: 'Add docker registry credentials'
         run: |
