@@ -32,8 +32,9 @@ jobs:
 
       - name: 'Add docker registry credentials'
         run: |
-          mkdir -p ~/.docker
-          echo "${{ secrets.DOCKER_REGISTRY_CONFIG }}" > ~/.docker/config.json
+          echo "${{ secrets.DOCKER_REGISTRY_PASSWORD }}" | docker login \
+            -u "${{ secrets.DOCKER_REGISTRY_LOGIN }}" \
+            --password-stdin
 
       - name: 'Build docker image'
         run: |
