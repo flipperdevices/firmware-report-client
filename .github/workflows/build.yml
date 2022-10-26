@@ -1,0 +1,49 @@
+name: 'Build docker image'
+
+on:
+  push:
+    branches:
+      - main
+    tags:
+      - '*'
+  pull_request:
+
+env:
+  IMAGE_NAME: "flipperdevices/firmware-report-client"
+
+jobs:
+  build:
+    runs-on: [self-hosted,FlipperZeroShell]
+    steps:
+      - name: 'Checkout code'
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+          ref: ${{ github.event.pull_request.head.sha }}
+
+      - name: 'Set image tag'
+        run: |
+          export IMAGE_TAG=latest
+          if [[ "${{ github.ref }}" == "refs/tags/"* ]]; then
+            REF=${{ github.ref }};
+            TAG_FULL=${REF#refs/*/};
+            export IMAGE_TAG=${TAG_FULL//\//_};
+          fi
+
+      - name: 'Add docker registry credentials'
+        run: |
+          mkdir -p ~/.docker
+          echo "${{ secrets.DOCKER_REGISTRY_CONFIG }}" > ~/.docker/config.json
+
+      - name: 'Build docker image'
+        run: |
+          docker build -t "$IMAGE_NAME:$IMAGE_TAG" .
+
+      - name: 'Upload docker image'
+        run: |
+          docker push "$IMAGE_NAME:$IMAGE_TAG"
+
+      - name: 'Remove docker registry credentials'
+        if: always()
+        run: |
+          rm -f ~/.docker/config.json
