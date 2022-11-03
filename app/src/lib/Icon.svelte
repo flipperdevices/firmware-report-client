@@ -1,4 +1,5 @@
 <script>
+    // https://feathericons.com/
     export let icon = "";
     export let color = "";
 </script>

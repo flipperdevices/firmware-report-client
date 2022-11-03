@@ -1,8 +1,8 @@
 <script>
     export let data = {
-        commit_1: "",
-        commit_2: "",
+        header: "",
         message: "",
+        size: 0,
     };
 
     export let expanded = false;
@@ -13,8 +13,18 @@
 
 <div>
     <div>
-        Diff between {data.commit_1}
-        and {data.commit_2}
+        {data.header}
+        [
+        {#if data.size > 0}
+            <span class="plus">
+                +{data.size}
+            </span>
+        {:else}
+            <span class="minus">
+                {data.size}
+            </span>
+        {/if}
+        ]
     </div>
     <div class="diff_message {expanded ? 'clickable-like' : ''}">
         <div
@@ -26,7 +36,7 @@
                 {data.message.split("\n")[0]}
             </span>
         </div>
-        {#if expanded}
+        {#if expanded && data.message.split("\n").length > 1}
             {#each data.message.split("\n").slice(1) as line}
                 {line}<br />
             {/each}

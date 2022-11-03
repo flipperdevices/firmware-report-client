@@ -18,8 +18,8 @@
             <span class="minus">
                 {section_name}: {section_data.size}
             </span>
-        {/if}</span
-    >
+        {/if}
+    </span>
     {#if expanded}
         {#each Object.entries(section_data.names) as [symbol_name, symbol_size]}
             <div>
