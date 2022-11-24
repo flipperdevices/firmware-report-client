@@ -2,11 +2,8 @@ name: 'Build docker image'
 
 on:
   push:
-    branches:
-      - main
     tags:
       - '*'
-  pull_request:
 
 env:
   IMAGE_NAME: "flipperdevices/firmware-report-client"
@@ -22,14 +19,16 @@ jobs:
           ref: ${{ github.event.pull_request.head.sha }}
 
       - name: 'Set image tag'
+        id: tag
         run: |
-          IMAGE_TAG=latest
+          IMAGE_TAG=0.0.0
           if [[ "${{ github.ref }}" == "refs/tags/"* ]]; then
             REF=${{ github.ref }};
             TAG_FULL=${REF#refs/*/};
             IMAGE_TAG=${TAG_FULL//\//_};
           fi
           echo "IMAGE_TAG=${IMAGE_TAG}" >> $GITHUB_ENV
+          echo "image_tag=${IMAGE_TAG}" >> $GITHUB_OUTPUT
 
       - name: 'Login to Docker Hub'
         uses: docker/login-action@v2
@@ -44,3 +43,11 @@ jobs:
       - name: 'Upload docker image'
         run: |
           docker push "$IMAGE_NAME:$IMAGE_TAG"
+
+      - name: 'Trigger k8s to use new image'
+        uses: peter-evans/repository-dispatch@v2
+        with:
+          repository: ${{ secrets.INFRASTRUCTURE_REPO }}
+          token: ${{ secrets.K8S_GITHUB_PAT }}
+          event-type: fw-reports-flipp-dev-client-deploy
+          client-payload: '{"image_tag": "${{steps.tag.outputs.image_tag}}"}'
